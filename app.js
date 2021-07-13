@@ -1,5 +1,10 @@
 const express = require('express');
 const {google} = require('googleapis');
+const createError = require('http-errors');
+const path = require('path');
+
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
 
 const app = express();
 const port = 3000;
@@ -17,10 +22,16 @@ const scopes = ['https://www.googleapis.com/auth/contacts',
         'https://www.googleapis.com/auth/userinfo.profile'
     ];
 
-app.get('/', (req, res) => {
-    res.send('tes.');
-  });
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+
 
 app.listen(port, () => {
-    console.log(`listening on ${port}`);
-  });
+  console.log(`listening on ${port}`);
+});
+
+module.exports = app;
