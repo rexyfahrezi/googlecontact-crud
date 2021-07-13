@@ -29,13 +29,14 @@ const oAuth2Client = new google.auth.OAuth2(
   "http://localhost:3000/auth/callback"
 );
 
-const authUrl = oAuth2Client.generateAuthUrl({
+var authUrl = oAuth2Client.generateAuthUrl({
   // 'online' (default) or 'offline' (gets refresh_token)
   access_type: 'offline',
   scope: scopes,
   prompt: 'consent'
 });
 
+app.set('authentUrl', authUrl);
 console.log('Authorize this app by visiting this url:', authUrl);
 
 // view engine setup
