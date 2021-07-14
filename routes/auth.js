@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 router.get('/callback', function(req, res, next) {
-  res.send('wait for auth');
+  const authCode = req.query.code;
+  res.redirect(`/users`);
 });
 
 module.exports = router;

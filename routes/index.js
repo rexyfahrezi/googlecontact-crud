@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 
 
-const authUrl = 'a';
+let authUrl = 'auth';
 
-/* GET home page. */
 router.get('/', function(req, res, next) {
+  authUrl = req.app.get('authentUrl');
   res.render('index', { title: 'Ini Title', GENERATED_GOOGLE_URL: `${authUrl}` });
 });
 
