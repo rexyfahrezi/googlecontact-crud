@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 
-let authUrl = 'auth';
+let authUrl = '';
 
 router.get('/', function(req, res, next) {
   authUrl = req.app.get('authentUrl');

@@ -10,18 +10,7 @@ const usersRouter = require('./routes/users');
 const app = express();
 const port = 3000;
 
-const scopes = ['https://www.googleapis.com/auth/contacts',
-        'https://www.googleapis.com/auth/contacts.readonly',
-        'https://www.googleapis.com/auth/directory.readonly',
-        'https://www.googleapis.com/auth/user.addresses.read',
-        'https://www.googleapis.com/auth/user.birthday.read',
-        'https://www.googleapis.com/auth/user.emails.read',
-        'https://www.googleapis.com/auth/user.gender.read',
-        'https://www.googleapis.com/auth/user.organization.read',
-        'https://www.googleapis.com/auth/user.phonenumbers.read',
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/userinfo.profile'
-    ];
+const scopes = ['https://www.googleapis.com/auth/contacts'];
 
 const oAuth2Client = new google.auth.OAuth2(
   "126642494520-ol6ih978on66eb3h027ckqjm1unvli9h.apps.googleusercontent.com",
