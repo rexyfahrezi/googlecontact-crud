@@ -1,36 +1,45 @@
 const express = require('express');
-//const app = require('app');
+const { google } = require('googleapis');
+const { oauth2 } = require('googleapis/build/src/apis/oauth2');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth2').Strategy;
 const router = express.Router();
 
-//mendapatkan accessToken & refreshToken
-router.use('/', (req, res, next) => {
+const getAccessToken = function (req, res, next){
     const authcode = req.query.code;
-    const oauth2Client = req.app.get('getOAuthClient');
-    const session = req.session;
+    const oauth2Client = req.app.get('getoAuth2Client');
+
     console.log('[user.js] - Mendapatkan authCode:', authcode);
     console.log('[user.js] - Mendapatkan oauth2Client data');
     console.log('[user.js] - Mencoba mendapatkan access & refreshToken');
-
-    oauth2Client.getToken(authcode, function(err, tokens) {
-        console.log("tokens : ", tokens);
-        // Now tokens contains an access_token and an optional refresh_token. Save them.
-        if (!err) {
-            oauth2Client.setCredentials(tokens);
-            session["tokens"] = tokens;
-        }
-    });
+    
+    oauth2Client.getToken(authcode, (err, tokens) => {
+        oauth2Client.setCredentials(tokens);
+        //console.log(oauth2Client)
+        console.log(tokens);
+        //return oauth2Client;
+    })
     next();
-});
+    //console.log(oauth2Client);
+};
 
+router.use(getAccessToken);
+
+//const oauth2Client = req.app.get('getoAuth2Client');
+//console.log(oauth2Client);
 
 router.get('/', function(req, res) {
-    const user = 'Fahrz';
-    const authcode = req.query.code;
     
+    const token = 'a'
+    //console.log(req.tokens)
+    const user = 'Rex';
+    const authcode = req.query.code;
+
     res.render('users', { 
         title: 'Users Page', 
         authcode: authcode,
-        user: user
+        user: user,
+        token: token
        });
 });
 

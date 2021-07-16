@@ -1,5 +1,6 @@
 const express = require('express');
 const {google} = require('googleapis');
+const fs = require('fs');
 const createError = require('http-errors');
 const path = require('path');
 const morgan = require('morgan');
@@ -21,7 +22,7 @@ const G_REDIRECT_URL = "http://localhost:3000/auth/callback";
 app.set('view engine', 'ejs');
 
 // third party middleware
-app.use(morgan('dev'));
+//app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(session({
   secret: 'gcontact-secret-19890913007',
@@ -61,7 +62,8 @@ authUrl = getAuthUrl();
 app.set('authentUrl', authUrl);
 console.log('[app.js] - Mendapatkan authUrl');
 
-app.set('getOAuthClient', getoAuth2Client());
+app.set('getoAuth2Client', getoAuth2Client());
+app.set('googleapis', google);
 
 app.listen(port, () => {
   console.log(`[app.js] - Listening on: ${port}`);
