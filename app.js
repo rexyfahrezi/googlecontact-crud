@@ -35,13 +35,18 @@ app.use('/users', usersRouter);
 app.use('/auth', oauthRouter);
 
 
-const getAuthUrl = () => {
-  const scopes = ['https://www.googleapis.com/auth/contacts'];
-  const oAuth2Client = new google.auth.OAuth2(
+const getoAuth2Client = () => {
+  const clientAuthData = new google.auth.OAuth2(
     G_CLIENT_ID,
     G_CLIENT_SECRET,
     G_REDIRECT_URL
   );
+  return clientAuthData;
+}
+
+const getAuthUrl = () => {
+  const scopes = ['https://www.googleapis.com/auth/contacts'];
+  const oAuth2Client = getoAuth2Client();
   
   const url = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
@@ -54,9 +59,9 @@ const getAuthUrl = () => {
 
 authUrl = getAuthUrl();
 app.set('authentUrl', authUrl);
-// console.log('\n[app.js] - Mendapatkan authUrl:', authUrl);
 console.log('[app.js] - Mendapatkan authUrl');
 
+app.set('getOAuthClient', getoAuth2Client());
 
 app.listen(port, () => {
   console.log(`[app.js] - Listening on: ${port}`);
