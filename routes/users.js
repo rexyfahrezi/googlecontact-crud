@@ -1,9 +1,23 @@
 const express = require('express');
 const router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-    res.send('welcome!<br>Here is your code :'+req.query.valid);
+//mendapatkan accessCode
+router.use('/', (req, res, next) => {
+    const authcode = req.query.code;
+    console.log('[user.js] - Mendapatkan authCode:', authcode);
+    next();
+});
+
+
+router.get('/', function(req, res) {
+    const user = 'Fahrz';
+    const authcode = req.query.code;
+    
+    res.render('users', { 
+        title: 'Users Page', 
+        authcode: authcode,
+        user: user
+       });
 });
 
 
