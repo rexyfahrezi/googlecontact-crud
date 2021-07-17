@@ -11,6 +11,9 @@
     <br>
     <br>
     <h3>Daftar Kontak :</h3>
+    <% if (namaKontak.length < 1) { %>
+      <h4>Tidak ada kontak terdaftar</h4> 
+    <% } %> 
     <ul>
       <% namaKontak.forEach(kontak => { %>
       <br>
