@@ -43,7 +43,15 @@ app.use('/auth', oauthRouter);
   );
 
 const getAuthUrl = () => {
-  const scopes = ['https://www.googleapis.com/auth/contacts'];
+  const scopes = [
+    'https://www.googleapis.com/auth/contacts',
+    'profile',
+    'email',
+    'https://www.googleapis.com/auth/contacts.readonly',
+    'https://www.googleapis.com/auth/directory.readonly',
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile'
+  ];
   
   const url = oAuth2Client.generateAuthUrl({
     access_type: 'offline',

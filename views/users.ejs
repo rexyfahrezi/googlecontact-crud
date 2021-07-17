@@ -5,8 +5,23 @@
     <link rel='stylesheet' href='css/style.css' />
   </head>
   <body>
-    <h3>Halo <%= user %></h3>
-    <p>Kode : <%= authcode %> </p>
-    <p>Token : <%= token %> </p>
+    <h3>Halo <%= namaUser %></h3>
+    <p>Nama : <%= namaLengkapUser %> </p>
+    <p>Email : <%= emailUser %> </p>
+    <br>
+    <br>
+    <h3>Daftar Kontak :</h3>
+    <ul>
+      <% namaKontak.forEach(kontak => { %>
+      <li>
+        <p>Nama : <%= JSON.stringify(kontak.kontaknama) %></p>
+        <p>Email : <%= JSON.stringify(kontak.kontakemail) %></p>
+      </li>
+      <% }); %>
+    </ul>
+    
+      
+    
+    
   </body>
 </html>
