@@ -6,16 +6,18 @@
   </head>
   <body>
     <h3>Halo <%= namaUser %></h3>
-    <p>Nama : <%= namaLengkapUser %> </p>
-    <p>Email : <%= emailUser %> </p>
+    <p>Nama Anda : <%= namaLengkapUser %> </p>
+    <p>Email Anda : <%= emailUser %> </p>
     <br>
     <br>
     <h3>Daftar Kontak :</h3>
     <ul>
       <% namaKontak.forEach(kontak => { %>
+      <br>
       <li>
         <p>Nama : <%= JSON.stringify(kontak.kontaknama) %></p>
         <p>Email : <%= JSON.stringify(kontak.kontakemail) %></p>
+        <p>No HP : <%= JSON.stringify(kontak.nomorhp) %></p>
       </li>
       <% }); %>
     </ul>

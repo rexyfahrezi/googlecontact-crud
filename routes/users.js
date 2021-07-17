@@ -21,7 +21,7 @@ router.get('/', function(req, res) {
         return await service.people.connections.list({
             resourceName: 'people/me',
             pageSize: 10,
-            personFields: 'names,emailAddresses',
+            personFields: 'names,emailAddresses,phoneNumbers',
             auth: oAuth2Client,
         });
     };
@@ -39,18 +39,42 @@ router.get('/', function(req, res) {
             const arrKontak = dataKontak.data.connections;
             let listKontak = [];            
 
+            function Kontak(kontaknama, kontakemail, nomorhp) {
+                this.kontaknama = kontaknama;
+                this.kontakemail = kontakemail;
+                this.nomorhp = nomorhp
+            }
+            
             if(arrKontak) {
                 arrKontak.forEach(function(kontak, i) {
                     if (!arrKontak[i].emailAddresses){
+                        if(!arrKontak[i].phoneNumbers){
+                            listKontak.push({
+                                "kontaknama": kontak.names[0].displayName,
+                                "kontakemail": "Tidak ada email",
+                                "nomorhp": "Tidak ada nomor handphone"
+                            });
+                        } 
+                        else {
+                            listKontak.push({
+                                "kontaknama": kontak.names[0].displayName,
+                                "kontakemail": "Tidak ada email",
+                                "nomorhp": kontak.phoneNumbers[0].value    
+                        });
+                        }
+                    } 
+                    else if ((!arrKontak[i].phoneNumbers)) {
                         listKontak.push({
                             "kontaknama": kontak.names[0].displayName,
-                            "kontakemail": "Tidak ada data email"
+                            "kontakemail": kontak.emailAddresses[0].value,
+                            "nomorhp": "Tidak ada nomor handphone"
                         });
-                    } 
+                    }
                     else {
                         listKontak.push({
                             "kontaknama": kontak.names[0].displayName,
-                            "kontakemail": kontak.emailAddresses[0].value
+                            "kontakemail": kontak.emailAddresses[0].value,
+                            "nomorhp": kontak.phoneNumbers[0].value
                         });
                     }
                 });
@@ -58,7 +82,7 @@ router.get('/', function(req, res) {
                 console.log('Tidak ada data kontak')
             }
             
-            //console.log(arrKontak[1].emailAddresses[0].value);
+            console.log(arrKontak[1]);
 
             res.render('users', { 
                 title: 'Users Page', 
