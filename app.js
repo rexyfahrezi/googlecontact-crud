@@ -1,14 +1,12 @@
 const express = require('express');
 const {google} = require('googleapis');
-const fs = require('fs');
-const createError = require('http-errors');
-const path = require('path');
-const morgan = require('morgan');
+const expressLayout = require('express-ejs-layouts');
 const session = require('express-session');
 
 const indexRouter = require('./routes/index');
 const oauthRouter = require('./routes/auth');
 const usersRouter = require('./routes/users');
+const logoutRouter = require('./routes/logout');
 
 const app = express();
 const port = 3000;
@@ -20,12 +18,14 @@ const G_REDIRECT_URL = "http://localhost:3000/auth/callback";
 
 // view engine setup
 app.set('view engine', 'ejs');
+app.use(expressLayout);
 
 // third party middleware
 //app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(session({
   secret: 'gcontact-secret-19890913007',
+  cookie: {},
   resave: true,
   saveUninitialized: true
 }));
@@ -34,6 +34,7 @@ app.use(session({
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', oauthRouter);
+app.use('/logout', logoutRouter);
 
 
   const oAuth2Client = new google.auth.OAuth2(

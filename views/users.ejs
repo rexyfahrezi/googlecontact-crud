@@ -1,32 +1,40 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='css/style.css' />
-  </head>
-  <body>
-    <h3>Halo <%= namaUser %></h3>
-    <p>Nama Anda : <%= namaLengkapUser %> </p>
-    <p>Email Anda : <%= emailUser %> </p>
-    <br>
-    <br>
-    <h3>Daftar Kontak :</h3>
-    <% if (namaKontak.length < 1) { %>
-      <h4>Tidak ada kontak terdaftar</h4> 
-    <% } %> 
-    <ul>
-      <% namaKontak.forEach(kontak => { %>
-      <br>
-      <li>
-        <p>Nama : <%= JSON.stringify(kontak.kontaknama) %></p>
-        <p>Email : <%= JSON.stringify(kontak.kontakemail) %></p>
-        <p>No HP : <%= JSON.stringify(kontak.nomorhp) %></p>
-      </li>
-      <% }); %>
-    </ul>
-    
-      
-    
-    
-  </body>
-</html>
+<div class="container mt-3">
+  <div class="row">
+    <div class="col-md-12">
+        <h3>Halo <%= namaLengkapUser %></h3>
+        <br>
+        <!-- <p>Nama Anda : <%= namaLengkapUser %> </p>
+        <p>Email Anda : <%= emailUser %> </p> -->
+        <% if (peopleKontak.length < 1) { %>
+          <h5>Tidak ada kontak terdaftar</h5> 
+        <% } %> 
+        <table class="table table-hover table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nama</th>
+                <th scope="col">Email</th>
+                <th scope="col">No HP</th>
+                <th scope="col">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+
+                <% peopleKontak.forEach(function(kontak, i){ %>
+                    <tr>
+                        <th scope="row"><%= i+1 %></th>
+                        <td><%= kontak.kontaknama %></td>
+                        <td><%= kontak.kontakemail %></td>
+                        <td><%= kontak.nomorhp %></td>
+                        <td>
+                          <a href="#" class="btn btn-success badge rounded-pill" id="<%= kontak.idKontak %>"</a>edit</a>
+                          <a href="#" class="btn btn-danger badge rounded-pill" id="<%= kontak.idKontak %>"</a>delete</a>
+                        </td>
+                    </tr>
+                    <% }); %>
+
+            </tbody>
+          </table>
+    </div>
+  </div>
+</div>

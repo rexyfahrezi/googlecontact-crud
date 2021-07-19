@@ -12,6 +12,7 @@ const getAccessToken = async function (req, res, next){
   try {
     const {tokens} = await oAuth2Client.getToken(authcode);
     oAuth2Client.setCredentials(tokens);
+    req.session.auth = tokens
     console.log('[auth.js] - Sukses mendapatkan access & refreshToken');
   } catch (error) {
       console.log('error', error);
