@@ -20,6 +20,8 @@ const G_REDIRECT_URL = "http://localhost:3000/auth/callback";
 app.set('view engine', 'ejs');
 app.use(expressLayout);
 
+//Body parser utk ngambil data dari method POST
+app.use(express.urlencoded())
 // third party middleware
 //app.use(morgan('dev'));
 app.use(express.static('public'));
@@ -37,7 +39,7 @@ app.use('/auth', oauthRouter);
 app.use('/logout', logoutRouter);
 
 
-  const oAuth2Client = new google.auth.OAuth2(
+const oAuth2Client = new google.auth.OAuth2(
     G_CLIENT_ID,
     G_CLIENT_SECRET,
     G_REDIRECT_URL
@@ -63,11 +65,17 @@ const getAuthUrl = () => {
   return url;
 }
 
+
+
+
+//console.log(isLoggedIn())
+
 authUrl = getAuthUrl();
 app.set('authentUrl', authUrl);
 console.log('[app.js] - Mendapatkan authUrl');
 
 app.set('oAuth2Client', oAuth2Client);
+
 app.set('googleapis', google);
 
 app.listen(port, () => {
@@ -75,3 +83,5 @@ app.listen(port, () => {
 });
 
 module.exports = app;
+
+exports.getoAuth2Client = function() { return oAuth2Client; };

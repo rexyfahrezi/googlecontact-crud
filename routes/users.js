@@ -4,42 +4,72 @@ const session = require('express-session');
 const router = express.Router();
 
 
+let oAuth2Client = router.get('/', function(req, res, next) {
+                        oAuth2Client = req.app.get('oAuth2Client');
+                        next();
+                        return oAuth2Client;
+                    })
+
+
+const service = google.people({version: 'v1', oAuth2Client});
+
+const getDataMe = async function () {
+    return await service.people.get({
+        resourceName: 'people/me',
+        personFields: 'emailAddresses,names',
+        auth: oAuth2Client,
+    })
+}
+
+const apiBuatKontak = async function (body) {
+    return await service.people.createContact({
+        personFields: 'names,emailAddresses,phoneNumbers',
+        requestBody : JSON.stringify(body),
+        auth: oAuth2Client,
+    })
+}
+
+const apiTampilKontak = async function () {
+    return await service.people.connections.list({
+        resourceName: 'people/me',
+        pageSize: 2000,
+        personFields: 'names,emailAddresses,phoneNumbers',
+        auth: oAuth2Client,
+        sortOrder: 'FIRST_NAME_ASCENDING'
+    });
+};
+
+const apiGetDetailKontak = async function (id) {
+    return await service.people.get({
+        resourceName: id,
+        personFields: 'names,emailAddresses,phoneNumbers',
+        auth: oAuth2Client,
+    })
+}
+
+const apiEditKontak = async function (id, data) {
+    //console.log(data)
+    return await service.people.updateContact({
+        resourceName: id,
+        personFields: 'names,emailAddresses,phoneNumbers',
+        updatePersonFields : 'names,emailAddresses,phoneNumbers',
+        requestBody: data,
+        auth: oAuth2Client
+    })
+}
+
+const apiDeleteKontak = async function (id) {  
+    return await service.people.deleteContact({
+        resourceName: id,
+        auth: oAuth2Client,
+    });
+};
+
 router.get('/', function(req, res) {
 
     if (!req.session.auth){
         res.redirect('/');
     }
-    
-    const oAuth2Client = req.app.get('oAuth2Client');
-    const service = google.people({version: 'v1', oAuth2Client});
-    
-    
-    const getDataMe = async function () {
-        return await service.people.get({
-            resourceName: 'people/me',
-            personFields: 'emailAddresses,names',
-            auth: oAuth2Client,
-        })
-    }
-
-    const apiBuatKontak = async function (body) {
-        return await service.people.createContact({
-            personFields: 'names,emailAddresses,phoneNumbers',
-            requestBody : JSON.stringify(body),
-            auth: oAuth2Client,
-        })
-    }
-    
-    const apiTampilKontak = async function () {
-        return await service.people.connections.list({
-            resourceName: 'people/me',
-            pageSize: 2000,
-            personFields: 'names,emailAddresses,phoneNumbers',
-            auth: oAuth2Client,
-            sortOrder: 'FIRST_NAME_ASCENDING'
-        });
-    };
-
 
     async function renderData() {
         try {
@@ -48,11 +78,7 @@ router.get('/', function(req, res) {
             const dataKontak = await apiTampilKontak();
             const dataUser = await getDataMe();
 
-            //membuat kontak
-            const dataBuat = buatKontak('Budi', '0888999', 'budi@mail');
-            //apiBuatKontak(dataBuat);
-            console.log(`[users.js] - Sukses membuat kontak baru`)
-            
+         
             //ini data user
             const givenName = dataUser.data.names[0].givenName;
             const displayName = dataUser.data.names[0].displayName;
@@ -81,8 +107,86 @@ router.get('/', function(req, res) {
             return console.log('promiseerror', err);
         }
     }
+
     renderData();
 });
+
+
+
+
+
+
+
+
+router.get('/add', async function(req, res) {
+    res.render('add-kontak', { 
+        title: 'Tambah Kontak', 
+        layout: 'layouts/main-layout',
+       });
+});
+
+router.post('/add', async function(req, res) {
+    //console.log(req.body)
+    const dataBuat = parseKontak(req.body.nama, req.body.nohp, req.body.email);
+    apiBuatKontak(dataBuat);
+    
+    console.log(`[users.js] - Sukses membuat kontak baru`)
+    //res.send('Kontak berhasil disimpan')
+    res.render('success-modal', { 
+        title: 'Sukses Menyimpan Kontak', 
+        message: 'Kontak berhasil disimpan',
+        layout: 'layouts/main-layout',
+       });
+});
+
+router.get('/delete/people/:id', async function(req, res) {
+    const id = `people/${req.params.id}`;
+    await apiDeleteKontak(id)
+    res.render('success-modal', { 
+        title: 'Sukses Menghapus Kontak', 
+        message: 'Kontak berhasil dihapus',
+        layout: 'layouts/main-layout',
+       });
+});
+
+
+router.get('/edit/people/:id', async function(req, res) {
+    const id = `people/${req.params.id}`;
+    const detailContact = await apiGetDetailKontak(id)
+
+    const displayName = detailContact.data.names[0].displayName;
+    const emailAddr = detailContact.data.emailAddresses[0].value;
+    const phoneNumbers = detailContact.data.phoneNumbers[0].value;
+    const idKontak = detailContact.data.resourceName;
+
+
+    res.render('edit-kontak', { 
+        title: 'Edit Kontak', 
+        layout: 'layouts/main-layout',
+        namakontak: displayName,
+        emailkontak: emailAddr,
+        nohpkontak: phoneNumbers,
+        idKontak: idKontak,
+       });
+});
+
+router.post('/edit/people/:id', async function(req, res) {
+    const id = `people/${req.params.id}`;
+    const detailContact = await apiGetDetailKontak(id)
+    const etag = detailContact.data.etag;
+
+    const dataKontak = parseKontak(req.body.nama, req.body.nohp, req.body.email, etag);
+    //console.log(dataKontak);
+
+    apiEditKontak(id, dataKontak);
+    console.log(`[users.js] - Sukses edit kontak`)
+    res.render('success-modal', { 
+        title: 'Sukses Mengubah Kontak', 
+        message: 'Kontak berhasil diubah',
+        layout: 'layouts/main-layout',
+       });
+});
+
 
 
 
@@ -136,8 +240,9 @@ function renderListcontact(arrKontak, listKontak) {
 }
 
   
-function buatKontak(nama, nohp, email){
+function parseKontak(nama, nohp, email, etag){
     body={
+        "etag": etag,
         "names": [
             {
                 "givenName": nama

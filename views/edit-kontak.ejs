@@ -1,0 +1,23 @@
+<div class="container mt-3">
+    <div class="row">
+      <div class="col-md-8">
+          <h2 class="mb-3">Edit Kontak</h2>
+          <form id="edit-kontak" method="post" action="/users/edit/<%= idKontak %>">
+                <div class="mb-3">
+                  <label for="nama" class="form-label">Nama</label>
+                  <input type="text" class="form-control" id="nama" name="nama" value="<%= namakontak %>" required>
+                </div>
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email" name="email" value="<%= emailkontak %>" required>
+                </div>
+                <div class="mb-3">
+                  <label for="nohp" class="form-label">No HP</label>
+                  <input type="text" class="form-control" id="nohp" name="nohp" value="<%= nohpkontak %>" required>
+                </div>
+                <!-- <a href="/users/edit/<%= idKontak %>" type="submit" class="btn btn-primary" >Edit Kontak</a> -->
+                <button type="submit" class="btn btn-primary">Edit Kontak</button>
+              </form>
+      </div>
+    </div>
+</div>

@@ -6,7 +6,6 @@ const expressLayout = require('express-ejs-layouts');
 let authUrl = '';
 
 router.get('/', function(req, res) {
-
   authUrl = req.app.get('authentUrl');
   res.render('index', { 
     title: 'Home Page', 
