@@ -11,9 +11,11 @@ const logoutRouter = require('./routes/logout');
 const app = express();
 const port = 3000;
 
-const G_CLIENT_ID = "126642494520-ol6ih978on66eb3h027ckqjm1unvli9h.apps.googleusercontent.com";
-const G_CLIENT_SECRET = "k1fZZwARpqHDdKXhgzoDAGwl";
-const G_REDIRECT_URL = "http://localhost:3000/auth/callback";
+require('dotenv').config();
+
+const G_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const G_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const G_REDIRECT_URL = process.env.GOOGLE_REDIRECT_URL;
 
 
 // view engine setup
@@ -26,7 +28,7 @@ app.use(express.urlencoded())
 //app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(session({
-  secret: 'gcontact-secret-19890913007',
+  secret: process.env.SESSION_SECRET,
   cookie: {},
   resave: true,
   saveUninitialized: true
