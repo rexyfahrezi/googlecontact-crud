@@ -11,16 +11,20 @@
           <li class="nav-item">
             <a class="nav-link" href="/">Home</a>
           </li>
+          <% if (loginstatus) { %> 
           <li class="nav-item">
             <a class="nav-link" href="/users">Contacts</a>
           </li>
-
+          <% } %> 
         </ul>
+        
+        <% if(loginstatus) { %> 
         <ul class="navbar-nav ms-auto">
             <li class="nav-item me-auto">
                 <a class="nav-link" href="/logout">Logout</a>
             </li>
         </ul>
+        <% } %> 
 
 
 

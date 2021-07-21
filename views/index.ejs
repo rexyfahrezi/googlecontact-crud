@@ -2,8 +2,15 @@
   <div class="row">
     <div class="col-md-8">
         <h1>Hi!</h1><br>
-        <p>Silahkan login terlebih dahulu</p>
-        <a href="<%= authurl %>">Login with Google</a>
+        <% if(loginstatus) { %>
+          <p>Selamat datang, informasi kontak ada di <a href="/users">Contact</a></p>
+          <% } %> 
+        <% if(!loginstatus) { %>
+          <p>Silahkan login terlebih dahulu</p>
+          <a href="<%= authurl %>" class="btn btn-outline-primary">
+            <ion-icon name="logo-google" style="font-size:30px; vertical-align: middle;"></ion-icon>
+            Login with Google</a>
+        <% } %> 
     </div>
   </div>
 </div>

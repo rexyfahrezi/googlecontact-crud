@@ -65,6 +65,6 @@
       $('#deleteModal').on('show.bs.modal', function(e) {
 
         $(this).find('.btn-ok-delete').attr('href', $(e.relatedTarget).data('href'));
-        $('.kontak-url').html('Yakin akan menghapus <strong>' +  $(e.relatedTarget).data('namakontak') + '</strong>?');
+        $('.kontak-url').html('Yakin ingin menghapus <strong>' +  $(e.relatedTarget).data('namakontak') + '</strong>?');
       });
   </script>

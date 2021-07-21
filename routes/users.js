@@ -67,7 +67,9 @@ const apiDeleteKontak = async function (id) {
 
 router.get('/', function(req, res) {
 
+    let loggedin = true
     if (!req.session.auth){
+        loggedin = false
         res.redirect('/');
     }
 
@@ -101,6 +103,7 @@ router.get('/', function(req, res) {
                 namaUser: givenName,
                 emailUser: emailAddr,
                 peopleKontak: listKontak,
+                loginstatus: loggedin,
                });
             
         } catch (err) {
@@ -112,20 +115,27 @@ router.get('/', function(req, res) {
 });
 
 
-
-
-
-
-
-
 router.get('/add', async function(req, res) {
+    let loggedin = true
+    if (!req.session.auth){
+        loggedin = false
+        res.redirect('/');
+    }
+
     res.render('add-kontak', { 
         title: 'Tambah Kontak', 
         layout: 'layouts/main-layout',
+        loginstatus: loggedin
        });
 });
 
 router.post('/add', async function(req, res) {
+    let loggedin = true
+    if (!req.session.auth){
+        loggedin = false
+        res.redirect('/');
+    }
+
     //console.log(req.body)
     const dataBuat = parseKontak(req.body.nama, req.body.nohp, req.body.email);
     apiBuatKontak(dataBuat);
@@ -136,21 +146,35 @@ router.post('/add', async function(req, res) {
         title: 'Sukses Menyimpan Kontak', 
         message: 'Kontak berhasil disimpan',
         layout: 'layouts/main-layout',
+        loginstatus: loggedin,
        });
 });
 
 router.get('/delete/people/:id', async function(req, res) {
+    let loggedin = true
+    if (!req.session.auth){
+        loggedin = false
+        res.redirect('/');
+    }
+
     const id = `people/${req.params.id}`;
     await apiDeleteKontak(id)
     res.render('success-modal', { 
         title: 'Sukses Menghapus Kontak', 
         message: 'Kontak berhasil dihapus',
         layout: 'layouts/main-layout',
+        loginstatus: loggedin
        });
 });
 
 
 router.get('/edit/people/:id', async function(req, res) {
+    let loggedin = true
+    if (!req.session.auth){
+        loggedin = false
+        res.redirect('/');
+    }
+
     const id = `people/${req.params.id}`;
     const detailContact = await apiGetDetailKontak(id)
 
@@ -167,10 +191,17 @@ router.get('/edit/people/:id', async function(req, res) {
         emailkontak: emailAddr,
         nohpkontak: phoneNumbers,
         idKontak: idKontak,
+        loginstatus: loggedin,
        });
 });
 
 router.post('/edit/people/:id', async function(req, res) {
+    let loggedin = true
+    if (!req.session.auth){
+        loggedin = false
+        res.redirect('/');
+    }
+    
     const id = `people/${req.params.id}`;
     const detailContact = await apiGetDetailKontak(id)
     const etag = detailContact.data.etag;
@@ -184,13 +215,9 @@ router.post('/edit/people/:id', async function(req, res) {
         title: 'Sukses Mengubah Kontak', 
         message: 'Kontak berhasil diubah',
         layout: 'layouts/main-layout',
+        loginstatus: loggedin,
        });
 });
-
-
-
-
-
 
 
 function renderListcontact(arrKontak, listKontak) {
@@ -261,11 +288,6 @@ function parseKontak(nama, nohp, email, etag){
     }
     return body
 }
-
-
-
-
-
 
 
 module.exports = router;
