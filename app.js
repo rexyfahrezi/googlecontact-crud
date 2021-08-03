@@ -10,7 +10,7 @@ const logoutRouter = require('./routes/logout');
 
 require('dotenv').config();
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
 
 const G_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
