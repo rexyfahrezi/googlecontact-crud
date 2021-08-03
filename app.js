@@ -8,10 +8,10 @@ const oauthRouter = require('./routes/auth');
 const usersRouter = require('./routes/users');
 const logoutRouter = require('./routes/logout');
 
-const app = express();
-const port = 3000;
-
 require('dotenv').config();
+const app = express();
+const port = process.env.PORT;
+
 
 const G_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const G_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
