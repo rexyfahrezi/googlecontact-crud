@@ -123,7 +123,6 @@ router.get('/', function(req, res) {
     renderData();
 });
 
-
 router.get('/add', async function(req, res) {
     let loggedin = true
     if (!req.session.auth){
@@ -175,7 +174,6 @@ router.get('/delete/people/:id', async function(req, res) {
         loginstatus: loggedin
        });
 });
-
 
 router.get('/edit/people/:id', async function(req, res) {
     let loggedin = true
@@ -242,38 +240,43 @@ router.get('/multiple/:sheetid/:sheetname', async function(req, res){
     }
 });
 
+router.get('/multiple', async function (req, res){
+    let loggedin = true
+    if (!req.session.auth){
+        loggedin = false
+        res.redirect('/');
+    }
 
-router.post('/multiple/:sheetid/:sheetname', async function(req, res){
-    console.log(`[users.js] - POST /users/multiple/${req.params}`);
+    res.render('add-multi-kontak', { 
+        title: 'Tambah Multi Kontak', 
+        layout: 'layouts/main-layout',
+        loginstatus: loggedin
+       });
+})
+
+router.post('/multiple', async function(req, res){
+    let loggedin = true
+    if (!req.session.auth){
+        loggedin = false
+        res.redirect('/');
+    }
+
     try {
-        const datasheet = await getFromSheet(req.params.sheetid,req.params.sheetname);
+        const datasheet = await getFromSheet(req.body.idsheet, req.body.namasheet);
         const datavalues = datasheet.data.values;
-        // console.log(datavalues);
-
+        
         datavalues.forEach(function(data, i) {
             const dataBuat = parseKontak(datavalues[i][0], datavalues[i][1],datavalues[i][2]);
             apiBuatKontak(dataBuat);
         });
-        
-        res.send('Success');
+
+        res.send('success');
+
 
     } catch(err) {
         console.log("error",err);
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 function renderListcontact(arrKontak, listKontak) {
@@ -322,7 +325,6 @@ function renderListcontact(arrKontak, listKontak) {
     return listKontak
 }
 
-  
 function parseKontak(nama, nohp, email, etag){
     body={
         "etag": etag,
