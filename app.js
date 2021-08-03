@@ -55,7 +55,8 @@ const getAuthUrl = () => {
     'https://www.googleapis.com/auth/contacts.readonly',
     'https://www.googleapis.com/auth/directory.readonly',
     'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/userinfo.profile'
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.googleapis.com/auth/spreadsheets.readonly'
   ];
   
   const url = oAuth2Client.generateAuthUrl({

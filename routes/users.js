@@ -12,6 +12,15 @@ let oAuth2Client = router.get('/', function(req, res, next) {
 
 
 const service = google.people({version: 'v1', oAuth2Client});
+const sheets = google.sheets({version: 'v4', oAuth2Client});
+
+const getFromSheet = async function (sheetid,sheetname) {
+    return await sheets.spreadsheets.values.get({
+        spreadsheetId: sheetid,
+        range: `${sheetname}!A1:Z1000`,
+        auth: oAuth2Client,
+    })
+}
 
 const getDataMe = async function () {
     return await service.people.get({
@@ -218,6 +227,53 @@ router.post('/edit/people/:id', async function(req, res) {
         loginstatus: loggedin,
        });
 });
+
+router.get('/multiple/:sheetid/:sheetname', async function(req, res){
+    console.log(`[users.js] - GET /users/multiple/${req.params}`);
+    try {
+        const datasheet = await getFromSheet(req.params.sheetid,req.params.sheetname);
+        // console.log(req.params.sheetid);
+        // console.log(datasheet.data.values);
+        
+        res.send(datasheet.data.values);
+
+    } catch(err) {
+        console.log("error",err);
+    }
+});
+
+
+router.post('/multiple/:sheetid/:sheetname', async function(req, res){
+    console.log(`[users.js] - POST /users/multiple/${req.params}`);
+    try {
+        const datasheet = await getFromSheet(req.params.sheetid,req.params.sheetname);
+        const datavalues = datasheet.data.values;
+        // console.log(datavalues);
+
+        datavalues.forEach(function(data, i) {
+            const dataBuat = parseKontak(datavalues[i][0], datavalues[i][1],datavalues[i][2]);
+            apiBuatKontak(dataBuat);
+        });
+        
+        res.send('Success');
+
+    } catch(err) {
+        console.log("error",err);
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function renderListcontact(arrKontak, listKontak) {
