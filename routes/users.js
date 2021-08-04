@@ -140,8 +140,14 @@ router.get('/', function(req, res) {
                });
             
         } catch (err) {
-            res.status(404).send('Data tidak ditemukan!');
-            return console.log('promiseerror', err);
+            console.log('promiseerror', err);
+
+            res.render('fail-modal', { 
+                title: 'Gagal mencari', 
+                message: 'Kontak tidak ditemukan, pastikan query sesuai dengan karakter awal yang dicari.\nContoh : "Budi" "Bu" "Bud" ',
+                layout: 'layouts/main-layout',
+                loginstatus: loggedin,
+               });
         }
     }
 
