@@ -84,6 +84,14 @@ const apiSearchKontak = async function (search) {
     });
 }
 
+const apiAddMultipleKontak = async function (body) {
+    return await service.people.batchCreateContacts({
+        readMask: 'names,emailAddresses,phoneNumbers',
+        requestBody : JSON.stringify(body),
+        auth: oAuth2Client,
+    });
+}
+
 router.get('/', function(req, res) {
 
     let loggedin = true
@@ -281,11 +289,13 @@ router.post('/multiple', async function(req, res){
     try {
         const datasheet = await getFromSheet(req.body.idsheet, req.body.namasheet);
         const datavalues = datasheet.data.values;
+        
         if (datavalues) {
+            let dataBuat = {"contacts": []}
             datavalues.forEach(function(data, i) {
-                const dataBuat = parseKontak(datavalues[i][0], datavalues[i][1],datavalues[i][2]);
-                apiBuatKontak(dataBuat);
+                dataBuat.contacts.push(parseMultiKontak(datavalues[i][0], datavalues[i][1],datavalues[i][2]));
             });
+            await apiAddMultipleKontak(dataBuat);
         } else {
             console.log("[users.js] - fail getting datavalues");
         }
@@ -372,5 +382,27 @@ function parseKontak(nama, nohp, email, etag){
     return body
 }
 
+function parseMultiKontak(nama, email, nohp){
+    body={
+        "contactPerson": {
+            "names": [
+                {
+                    "givenName": nama
+                }
+            ],
+            "phoneNumbers": [
+                {
+                    'value': nohp
+                }
+            ],
+            "emailAddresses": [
+                {
+                    'value': email
+                }
+            ]
+        }
+    }
+    return body
+}
 
 module.exports = router;
