@@ -56,7 +56,6 @@ const apiGetDetailKontak = async function (id) {
 }
 
 const apiEditKontak = async function (id, data) {
-    //console.log(data)
     return await service.people.updateContact({
         resourceName: id,
         personFields: 'names,emailAddresses,phoneNumbers',
@@ -189,7 +188,6 @@ router.post('/add', async function(req, res) {
         res.redirect('/');
     }
 
-    //console.log(req.body)
     const dataBuat = parseKontak(req.body.nama, req.body.nohp, req.body.email);
     apiBuatKontak(dataBuat);
     
