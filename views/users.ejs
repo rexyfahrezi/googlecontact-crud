@@ -1,13 +1,23 @@
 <div class="container mt-3">
   <div class="row">
+    <h3>Halo <%= namaLengkapUser %></h3>
+    <!-- <p>Nama Anda : <%= namaLengkapUser %> </p>
+    <p>Email Anda : <%= emailUser %> </p> -->
+    <div class="col-md-6">
+      <a href="/users/add" class="btn btn-primary mt-3 mb-3">+ Tambah Kontak</a>
+      <a href="/users/multiple" class="btn btn-primary mt-3 mb-3">+ Tambah Kontak Dari Spreadsheet</a>
+    </div>
+    <div class="col-md-6">
+      <form id="tambah-kontak" method="GET" action="/users">
+        <div class="input-group mt-3 mb-3">
+          <input type="text" class="form-control" id="q" name="q" placeholder="Cari kontak" required>
+          <button type="submit" class="btn btn-primary" data-bs-toggle="modal">Cari Kontak</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="row">
     <div class="col-md-12">
-        <h3>Halo <%= namaLengkapUser %></h3>
-
-        <a href="/users/add" class="btn btn-primary mt-3 mb-3">+ Tambah Kontak</a>
-        <a href="/users/multiple" class="btn btn-primary mt-3 mb-3">+ Tambah Kontak Dari Spreadsheet</a>
-
-        <!-- <p>Nama Anda : <%= namaLengkapUser %> </p>
-        <p>Email Anda : <%= emailUser %> </p> -->
         <% if (peopleKontak.length < 1) { %>
           <h5>Tidak ada kontak terdaftar</h5> 
         <% } %> 

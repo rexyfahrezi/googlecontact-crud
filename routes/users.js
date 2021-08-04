@@ -1,6 +1,7 @@
 const express = require('express');
 const { google } = require('googleapis');
 const session = require('express-session');
+const { search } = require('.');
 const router = express.Router();
 
 
@@ -74,6 +75,15 @@ const apiDeleteKontak = async function (id) {
     });
 };
 
+const apiSearchKontak = async function (search) {
+    return await service.people.searchContacts({
+        pageSize: 30,
+        query: search,
+        readMask: 'names,emailAddresses,phoneNumbers',
+        auth: oAuth2Client,
+    });
+}
+
 router.get('/', function(req, res) {
 
     let loggedin = true
@@ -84,25 +94,39 @@ router.get('/', function(req, res) {
 
     async function renderData() {
         try {
-            
+
+            let listKontak = []
+            let listkontaksearch = []
+            let searchquery = req.query.q;
+
+
             //akses google API
             const dataKontak = await apiTampilKontak();
             const dataUser = await getDataMe();
 
-         
             //ini data user
             const givenName = dataUser.data.names[0].givenName;
             const displayName = dataUser.data.names[0].displayName;
             const emailAddr = dataUser.data.emailAddresses[0].value;
             
+            //kalo ada query /search?q=
+            if (searchquery) {
+                const search = await apiSearchKontak(searchquery);
+                const datasearch = search.data.results;
 
-            //menampilkan list kontak
-            const arrKontak = dataKontak.data.connections;
-            let listKontak = []
-            renderListcontact(arrKontak, listKontak)
-            console.log('[users.js] - Sukses menampilkan renderListcontact')
+                datasearch.forEach(function(data, i) {
+                    listkontaksearch.push(datasearch[i].person);
+                });
 
-            //console.log(listKontak)
+                renderListcontact(listkontaksearch, listKontak)
+                console.log('[users.js] - Sukses mencari kontak');
+            } else {
+                //ngambil list kontak dari API kalo gada query
+                const arrKontak = dataKontak.data.connections;
+                //di render, masukin ke listKontak[]
+                renderListcontact(arrKontak, listKontak)
+                console.log('[users.js] - Sukses menampilkan renderListcontact')
+            }
 
             // render ke page user
             res.render('users', { 
@@ -116,6 +140,7 @@ router.get('/', function(req, res) {
                });
             
         } catch (err) {
+            res.status(404).send('Data tidak ditemukan!');
             return console.log('promiseerror', err);
         }
     }
@@ -225,20 +250,6 @@ router.post('/edit/people/:id', async function(req, res) {
         loginstatus: loggedin,
        });
 });
-
-// router.get('/multiple/:sheetid/:sheetname', async function(req, res){
-//     console.log(`[users.js] - GET /users/multiple/${req.params}`);
-//     try {
-//         const datasheet = await getFromSheet(req.params.sheetid,req.params.sheetname);
-//         // console.log(req.params.sheetid);
-//         // console.log(datasheet.data.values);
-        
-//         res.send(datasheet.data.values);
-
-//     } catch(err) {
-//         console.log("error",err);
-//     }
-// });
 
 router.get('/multiple', async function (req, res){
     let loggedin = true
