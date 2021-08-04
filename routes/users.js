@@ -142,7 +142,6 @@ router.get('/', function(req, res) {
                 console.log('[users.js] - Sukses menampilkan renderListcontact')
             }
 
-            // render ke page user
             res.render('users', { 
                 title: 'Users Page', 
                 layout: 'layouts/main-layout',
@@ -257,9 +256,8 @@ router.post('/edit/people/:id', async function(req, res) {
     const id = `people/${req.params.id}`;
     const detailContact = await apiGetDetailKontak(id)
     const etag = detailContact.data.etag;
-
+    
     const dataKontak = parseKontak(req.body.nama, req.body.nohp, req.body.email, etag);
-    //console.log(dataKontak);
 
     apiEditKontak(id, dataKontak);
     console.log(`[users.js] - Sukses edit kontak`)
@@ -298,12 +296,57 @@ router.post('/multiple', async function(req, res){
 
         if (datavalues) {
             let dataBuat = {"contacts": []}
-            datavalues.forEach(function(data, i) {
-                //cek duplikat
-                
-                dataBuat.contacts.push(parseMultiKontak(datavalues[i][0], datavalues[i][1],datavalues[i][2]));
-            });
-            await apiAddMultipleKontak(dataBuat);
+            let arrdatasearch = [];
+            let dataUpdate =   {
+                "contacts": [],
+                "updateMask": "names,emailAddresses,phoneNumbers"
+            };
+            // const search = await apiSearchKontak(e[2]);
+            // const datasearch = search.data.results;
+            // arrdatasearch.push(datasearch);
+            //  console.log(arrdatasearch);
+            
+
+            async function asyncForEach(array, callback) {
+                for (let index = 0; index < array.length; index++) {
+                  await callback(array[index], index, array);
+                }
+              }
+
+            const cariDuplikat = async () => {
+                await asyncForEach(datavalues, async (e) => {
+                    const search = await apiSearchKontak(e[2]);
+                    const datasearch = search.data.results;
+                    if (datasearch){
+                        arrdatasearch.push(datasearch);
+                    }
+                });
+                console.log('[user.js] - Done search /multiple');
+                console.log('[user.js] - Updating data /multiple');
+
+                arrdatasearch.map((e) => { 
+                    const obj = {
+                      [`${e[0].person.resourceName}`]: {
+                        "etag": e[0].person.etag,
+                        "names": [{"givenName": e[0].person.names}],
+                        "emailAddresses": [{"value": e[0].person.emailAddresses}],
+                        "phoneNumbers": [{"value": e[0].person.phoneNumbers}]
+                      }
+                    };
+                    dataUpdate.contacts.push(obj);
+                });
+
+                console.log(`Data yang sudah ada ditemukan :`);
+                console.log(dataUpdate);
+              };
+
+            cariDuplikat();
+
+            // create batch kontak
+            // datavalues.forEach(function(data, i) {  
+            //     dataBuat.contacts.push(parseMultiKontak(datavalues[i][0], datavalues[i][1],datavalues[i][2]));
+            // });
+            // await apiAddMultipleKontak(dataBuat);
         } else {
             console.log("[users.js] - fail getting datavalues");
         }
