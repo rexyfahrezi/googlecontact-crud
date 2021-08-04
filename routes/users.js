@@ -1,7 +1,5 @@
 const express = require('express');
 const { google } = require('googleapis');
-const session = require('express-session');
-const { search } = require('.');
 const router = express.Router();
 
 
@@ -42,7 +40,7 @@ const apiBuatKontak = async function (body) {
 const apiTampilKontak = async function () {
     return await service.people.connections.list({
         resourceName: 'people/me',
-        pageSize: 2000,
+        pageSize: 20,
         personFields: 'names,emailAddresses,phoneNumbers',
         auth: oAuth2Client,
         sortOrder: 'FIRST_NAME_ASCENDING'
@@ -84,6 +82,15 @@ const apiSearchKontak = async function (search) {
     });
 }
 
+const apiSearchKontakSpreadsheet = async function (search) {
+    return await service.people.searchContacts({
+        pageSize: 30,
+        query: search,
+        readMask: 'emailAddresses,phoneNumbers',
+        auth: oAuth2Client,
+    });
+}
+
 const apiAddMultipleKontak = async function (body) {
     return await service.people.batchCreateContacts({
         readMask: 'names,emailAddresses,phoneNumbers',
@@ -107,7 +114,6 @@ router.get('/', function(req, res) {
             let listkontaksearch = []
             let searchquery = req.query.q;
 
-
             //akses google API
             const dataKontak = await apiTampilKontak();
             const dataUser = await getDataMe();
@@ -119,7 +125,7 @@ router.get('/', function(req, res) {
             
             //kalo ada query /search?q=
             if (searchquery) {
-                const search = await apiSearchKontak(searchquery);
+                const search = await apiSearchKontak(searchquery.toLowerCase());
                 const datasearch = search.data.results;
 
                 datasearch.forEach(function(data, i) {
@@ -289,10 +295,12 @@ router.post('/multiple', async function(req, res){
     try {
         const datasheet = await getFromSheet(req.body.idsheet, req.body.namasheet);
         const datavalues = datasheet.data.values;
-        
+
         if (datavalues) {
             let dataBuat = {"contacts": []}
             datavalues.forEach(function(data, i) {
+                //cek duplikat
+                
                 dataBuat.contacts.push(parseMultiKontak(datavalues[i][0], datavalues[i][1],datavalues[i][2]));
             });
             await apiAddMultipleKontak(dataBuat);
