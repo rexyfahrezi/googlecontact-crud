@@ -226,19 +226,19 @@ router.post('/edit/people/:id', async function(req, res) {
        });
 });
 
-router.get('/multiple/:sheetid/:sheetname', async function(req, res){
-    console.log(`[users.js] - GET /users/multiple/${req.params}`);
-    try {
-        const datasheet = await getFromSheet(req.params.sheetid,req.params.sheetname);
-        // console.log(req.params.sheetid);
-        // console.log(datasheet.data.values);
+// router.get('/multiple/:sheetid/:sheetname', async function(req, res){
+//     console.log(`[users.js] - GET /users/multiple/${req.params}`);
+//     try {
+//         const datasheet = await getFromSheet(req.params.sheetid,req.params.sheetname);
+//         // console.log(req.params.sheetid);
+//         // console.log(datasheet.data.values);
         
-        res.send(datasheet.data.values);
+//         res.send(datasheet.data.values);
 
-    } catch(err) {
-        console.log("error",err);
-    }
-});
+//     } catch(err) {
+//         console.log("error",err);
+//     }
+// });
 
 router.get('/multiple', async function (req, res){
     let loggedin = true
@@ -264,14 +264,22 @@ router.post('/multiple', async function(req, res){
     try {
         const datasheet = await getFromSheet(req.body.idsheet, req.body.namasheet);
         const datavalues = datasheet.data.values;
-        
-        datavalues.forEach(function(data, i) {
-            const dataBuat = parseKontak(datavalues[i][0], datavalues[i][1],datavalues[i][2]);
-            apiBuatKontak(dataBuat);
-        });
+        if (datavalues) {
+            datavalues.forEach(function(data, i) {
+                const dataBuat = parseKontak(datavalues[i][0], datavalues[i][1],datavalues[i][2]);
+                apiBuatKontak(dataBuat);
+            });
+        } else {
+            console.log("[users.js] - fail getting datavalues");
+        }
 
-        res.send('success');
-
+        console.log(`[users.js] - Sukses menambahkan ${datavalues.length} kontak`)
+        res.render('success-modal', { 
+            title: 'Sukses Menambahkan Kontak', 
+            message: `${datavalues.length} kontak berhasil ditambahkan`,
+            layout: 'layouts/main-layout',
+            loginstatus: loggedin,
+           });
 
     } catch(err) {
         console.log("error",err);
