@@ -308,8 +308,9 @@ router.post('/multiple', async function(req, res){
 
             const createAndUpdateBatch = async () => {
                 await asyncForEach(datavalues, async (e) => {
-                    const search = await apiSearchKontak(e[2]);
+                    const search = await apiSearchKontak(e[1], e[2]);
                     const datasearch = search.data.results;
+                    
                     if (datasearch){
                         // arrdatasearch untuk dapetin etag, id dll dari hasil search
                         // arrdataupdate utk nyimpen data yang didapet dari spreadsheet
@@ -348,6 +349,7 @@ router.post('/multiple', async function(req, res){
                 // console.log(dataBuat);
                 
                 try {
+                    console.log('[user.js] Membuat multi kontak dari sheet');
                     await apiAddMultipleKontak(dataBuat);
                     if (Object.keys(dataUpdate.contacts).length > 0){
                         console.log('[user.js] Ada data update dari sheet');
