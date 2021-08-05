@@ -16,7 +16,7 @@ const sheets = google.sheets({version: 'v4', oAuth2Client});
 const getFromSheet = async function (sheetid,sheetname) {
     return await sheets.spreadsheets.values.get({
         spreadsheetId: sheetid,
-        range: `${sheetname}!A1:Z1000`,
+        range: `${sheetname}!A1:C200`,
         auth: oAuth2Client,
     })
 }
@@ -81,18 +81,16 @@ const apiSearchKontak = async function (search) {
     });
 }
 
-const apiSearchKontakSpreadsheet = async function (search) {
-    return await service.people.searchContacts({
-        pageSize: 30,
-        query: search,
-        readMask: 'emailAddresses,phoneNumbers',
+const apiAddMultipleKontak = async function (body) {
+    return await service.people.batchCreateContacts({
+        readMask: 'names,emailAddresses,phoneNumbers',
+        requestBody : JSON.stringify(body),
         auth: oAuth2Client,
     });
 }
 
-const apiAddMultipleKontak = async function (body) {
-    return await service.people.batchCreateContacts({
-        readMask: 'names,emailAddresses,phoneNumbers',
+const apiUpdateMultipleKontak = async function (body) {
+    return await service.people.batchUpdateContacts({
         requestBody : JSON.stringify(body),
         auth: oAuth2Client,
     });
@@ -294,16 +292,13 @@ router.post('/multiple', async function(req, res){
 
         if (datavalues) {
             let dataBuat = {"contacts": []}
+            let arrdataupdate = [];
             let arrdatasearch = [];
             let dataUpdate =   {
-                "contacts": [],
-                "updateMask": "names,emailAddresses,phoneNumbers"
-            };
-            // const search = await apiSearchKontak(e[2]);
-            // const datasearch = search.data.results;
-            // arrdatasearch.push(datasearch);
-            //  console.log(arrdatasearch);
-            
+                "contacts": {},
+                "updateMask": 'names,emailAddresses,phoneNumbers',
+                "readMask": 'names,emailAddresses,phoneNumbers',
+            };            
 
             async function asyncForEach(array, callback) {
                 for (let index = 0; index < array.length; index++) {
@@ -311,40 +306,61 @@ router.post('/multiple', async function(req, res){
                 }
               }
 
-            const cariDuplikat = async () => {
+            const createAndUpdateBatch = async () => {
                 await asyncForEach(datavalues, async (e) => {
                     const search = await apiSearchKontak(e[2]);
                     const datasearch = search.data.results;
                     if (datasearch){
+                        // arrdatasearch untuk dapetin etag, id dll dari hasil search
+                        // arrdataupdate utk nyimpen data yang didapet dari spreadsheet
                         arrdatasearch.push(datasearch);
+                        arrdataupdate.push(e);
+                    } else {
+                        dataBuat.contacts.push(parseMultiKontak(e[0], e[1],e[2]));
                     }
                 });
                 console.log('[user.js] - Done search /multiple');
                 console.log('[user.js] - Updating data /multiple');
+                //console.log(arrdataupdate);
 
-                arrdatasearch.map((e) => { 
+                arrdatasearch.map((e, i) => { 
                     const obj = {
                       [`${e[0].person.resourceName}`]: {
                         "etag": e[0].person.etag,
-                        "names": [{"givenName": e[0].person.names}],
-                        "emailAddresses": [{"value": e[0].person.emailAddresses}],
-                        "phoneNumbers": [{"value": e[0].person.phoneNumbers}]
+                        "names": [{"givenName": arrdataupdate[i][0]}],
+                        "emailAddresses": [{"value": arrdataupdate[i][1]}],
+                        "phoneNumbers": [{"value": arrdataupdate[i][2]}]
                       }
                     };
-                    dataUpdate.contacts.push(obj);
+
+                    if (arrdataupdate[i][0] != e[0].person.names[0].displayName ||
+                        arrdataupdate[i][1] != e[0].person.emailAddresses[0].value ||
+                        arrdataupdate[i][2] != e[0].person.phoneNumbers[0].value){
+
+                            Object.assign(dataUpdate.contacts, obj);
+                        }
+                    
                 });
 
-                console.log(`Data yang sudah ada ditemukan :`);
-                console.log(dataUpdate);
+                // console.log(`Data yang akan diupdate :`);
+                // console.log(dataUpdate.contacts);                
+                // console.log(`Data yang akan dibuat :`);
+                // console.log(dataBuat);
+                
+                try {
+                    await apiAddMultipleKontak(dataBuat);
+                    if (Object.keys(dataUpdate.contacts).length > 0){
+                        console.log('[user.js] Ada data update dari sheet');
+                        await apiUpdateMultipleKontak(dataUpdate);
+                    }
+                } catch(err) {
+                    console.log('Error',err);
+                }
+
               };
 
-            cariDuplikat();
+            createAndUpdateBatch();
 
-            // create batch kontak
-            // datavalues.forEach(function(data, i) {  
-            //     dataBuat.contacts.push(parseMultiKontak(datavalues[i][0], datavalues[i][1],datavalues[i][2]));
-            // });
-            // await apiAddMultipleKontak(dataBuat);
         } else {
             console.log("[users.js] - fail getting datavalues");
         }
