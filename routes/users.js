@@ -110,6 +110,8 @@ router.get('/', function(req, res) {
             let listKontak = []
             let listkontaksearch = []
             let searchquery = req.query.q;
+            // warmup cache search
+            await apiSearchKontak();
 
             //akses google API
             const dataKontak = await apiTampilKontak();
@@ -289,6 +291,8 @@ router.post('/multiple', async function(req, res){
     try {
         const datasheet = await getFromSheet(req.body.idsheet, req.body.namasheet);
         const datavalues = datasheet.data.values;
+        // warmup cache search
+        await apiSearchKontak();
 
         if (datavalues) {
             let dataBuat = {"contacts": []}
@@ -309,9 +313,9 @@ router.post('/multiple', async function(req, res){
             const createAndUpdateBatch = async () => {
                 await asyncForEach(datavalues, async (e) => {
                     const search = await apiSearchKontak(e[2]);
-                    //const search = await apiSearchKontak(e[2] || e[1]);
                     const datasearch = search.data.results;
-                    console.log(datasearch);
+                    console.log(`${e} data dari sheet`);
+                    // console.log(`${datasearch}`);
                     
                     if (datasearch){
                         // arrdatasearch untuk dapetin etag, id dll dari hasil search
@@ -319,7 +323,7 @@ router.post('/multiple', async function(req, res){
                         arrdatasearch.push(datasearch);
                         arrdataupdate.push(e);
                     } else {
-                        dataBuat.contacts.push(parseMultiKontak(e[0], e[1],e[2]));
+                        dataBuat.contacts.push(parseMultiKontak(e[0],e[1],e[2]));
                     }
                 });
                 console.log('[user.js] - Done search /multiple');
@@ -336,20 +340,10 @@ router.post('/multiple', async function(req, res){
                       }
                     };
 
-                    console.log(arrdataupdate[i][0]);
-                    console.log(e[0].person.names[0].displayName);
-                    console.log(arrdataupdate[i][1]);
-                    console.log(e[0].person.emailAddresses[0].value);
-                    console.log(arrdataupdate[i][2]);
-                    console.log(e[0].person.phoneNumbers[0].value);
-                    
-
                     if (arrdataupdate[i][0] != e[0].person.names[0].displayName ||
                         arrdataupdate[i][1] != e[0].person.emailAddresses[0].value ||
                         arrdataupdate[i][2] != e[0].person.phoneNumbers[0].value){
-
                             Object.assign(dataUpdate.contacts, obj);
-                            console.log(obj);    
                         }
                 });
 
@@ -359,13 +353,12 @@ router.post('/multiple', async function(req, res){
                 // console.log(dataBuat);
                 
                 try {
-                    console.log('[user.js] Membuat multi kontak dari sheet');
-                    if (dataBuat.contacts.length != 0){
+                    if (dataBuat.contacts.length > 0){
+                        console.log(`[user.js] - Membuat ${dataBuat.contacts.length} kontak baru dari sheet`);
                         await apiAddMultipleKontak(dataBuat);
                     }
-                    console.log(dataUpdate.contacts);
                     if (Object.keys(dataUpdate.contacts).length != 0){
-                        console.log('[user.js] Ada data update dari sheet');
+                        console.log(`[user.js] - Ada ${Object.keys(dataUpdate.contacts).length} data update dari sheet`);
                         await apiUpdateMultipleKontak(dataUpdate);
                     }
                 } catch(err) {
@@ -373,7 +366,7 @@ router.post('/multiple', async function(req, res){
                 }
 
               };
-
+            
             createAndUpdateBatch();
 
         } else {
