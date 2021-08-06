@@ -312,19 +312,55 @@ router.post('/multiple', async function(req, res){
 
             const createAndUpdateBatch = async () => {
                 await asyncForEach(datavalues, async (e) => {
-                    const search = await apiSearchKontak(e[2]);
+
+                    const search = await apiSearchKontak(e[1]);
+                    const search2 = await apiSearchKontak(e[2]);
                     const datasearch = search.data.results;
-                    console.log(`${e} data dari sheet`);
-                    // console.log(`${datasearch}`);
-                    
-                    if (datasearch){
-                        // arrdatasearch untuk dapetin etag, id dll dari hasil search
-                        // arrdataupdate utk nyimpen data yang didapet dari spreadsheet
-                        arrdatasearch.push(datasearch);
-                        arrdataupdate.push(e);
-                    } else {
-                        dataBuat.contacts.push(parseMultiKontak(e[0],e[1],e[2]));
+                    const datasearch2 = search2.data.results;
+                    console.log('[user.js] - Searching by mail & phone');
+
+                    if(datasearch != undefined || datasearch2 != undefined){
+                        if (datasearch != datasearch2){
+                            if (datasearch) {
+                            arrdatasearch.push(datasearch);
+                            arrdataupdate.push(e);
+                            console.log('[user.js] - Found data by email');
+                            }
+                            else if (datasearch2) {
+                            arrdatasearch.push(datasearch2);
+                            arrdataupdate.push(e);
+                            console.log('[user.js] - Found data by phone');
+                            }
+                        } else {
+                            arrdatasearch.push(datasearch);
+                            arrdataupdate.push(e);
+                            console.log('[user.js] - Found data by email & phone');
+                        }
                     }
+
+                      if (!datasearch && !datasearch2) {
+                        dataBuat.contacts.push(parseMultiKontak(e[0], e[1],e[2]));
+                        console.log('[user.js] - Email / Phone not found, creating contact . .');
+                    };
+
+
+
+
+
+
+                    // const search = await apiSearchKontak(e[2]);
+                    // const datasearch = search.data.results;
+                    // console.log(`${e} data dari sheet`);
+                    // // console.log(`${datasearch}`);
+                    
+                    // if (datasearch){
+                    //     // arrdatasearch untuk dapetin etag, id dll dari hasil search
+                    //     // arrdataupdate utk nyimpen data yang didapet dari spreadsheet
+                    //     arrdatasearch.push(datasearch);
+                    //     arrdataupdate.push(e);
+                    // } else {
+                    //     dataBuat.contacts.push(parseMultiKontak(e[0],e[1],e[2]));
+                    // }
                 });
                 console.log('[user.js] - Done search /multiple');
                 console.log('[user.js] - Updating data /multiple');
