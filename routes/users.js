@@ -308,8 +308,10 @@ router.post('/multiple', async function(req, res){
 
             const createAndUpdateBatch = async () => {
                 await asyncForEach(datavalues, async (e) => {
-                    const search = await apiSearchKontak(e[1], e[2]);
+                    const search = await apiSearchKontak(e[2]);
+                    //const search = await apiSearchKontak(e[2] || e[1]);
                     const datasearch = search.data.results;
+                    console.log(datasearch);
                     
                     if (datasearch){
                         // arrdatasearch untuk dapetin etag, id dll dari hasil search
@@ -334,24 +336,35 @@ router.post('/multiple', async function(req, res){
                       }
                     };
 
+                    console.log(arrdataupdate[i][0]);
+                    console.log(e[0].person.names[0].displayName);
+                    console.log(arrdataupdate[i][1]);
+                    console.log(e[0].person.emailAddresses[0].value);
+                    console.log(arrdataupdate[i][2]);
+                    console.log(e[0].person.phoneNumbers[0].value);
+                    
+
                     if (arrdataupdate[i][0] != e[0].person.names[0].displayName ||
                         arrdataupdate[i][1] != e[0].person.emailAddresses[0].value ||
                         arrdataupdate[i][2] != e[0].person.phoneNumbers[0].value){
 
                             Object.assign(dataUpdate.contacts, obj);
+                            console.log(obj);    
                         }
-                    
                 });
 
                 // console.log(`Data yang akan diupdate :`);
-                // console.log(dataUpdate.contacts);                
+                //console.log(dataUpdate.contacts);                
                 // console.log(`Data yang akan dibuat :`);
                 // console.log(dataBuat);
                 
                 try {
                     console.log('[user.js] Membuat multi kontak dari sheet');
-                    await apiAddMultipleKontak(dataBuat);
-                    if (Object.keys(dataUpdate.contacts).length > 0){
+                    if (dataBuat.contacts.length != 0){
+                        await apiAddMultipleKontak(dataBuat);
+                    }
+                    console.log(dataUpdate.contacts);
+                    if (Object.keys(dataUpdate.contacts).length != 0){
                         console.log('[user.js] Ada data update dari sheet');
                         await apiUpdateMultipleKontak(dataUpdate);
                     }
