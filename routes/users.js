@@ -5,6 +5,10 @@ const {
     apiDeleteKontak, apiSearchKontak, apiAddMultipleKontak, apiUpdateMultipleKontak
 } = require('../models/apicaller');
 
+const {
+    renderListcontact, parseKontak, parseMultiKontak
+  } = require('../models/users')
+
 router.get('/', function(req, res) {
 
     let loggedin = true
@@ -100,7 +104,6 @@ router.post('/add', async function(req, res) {
     apiBuatKontak(dataBuat);
     
     console.log(`[users.js] - Sukses membuat kontak baru`)
-    //res.send('Kontak berhasil disimpan')
     res.render('success-modal', { 
         title: 'Sukses Menyimpan Kontak', 
         message: 'Kontak berhasil disimpan',
@@ -251,29 +254,9 @@ router.post('/multiple', async function(req, res){
                         dataBuat.contacts.push(parseMultiKontak(e[0], e[1],e[2]));
                         console.log('[user.js] - Email / Phone not found, creating contact . .');
                     };
-
-
-
-
-
-
-                    // const search = await apiSearchKontak(e[2]);
-                    // const datasearch = search.data.results;
-                    // console.log(`${e} data dari sheet`);
-                    // // console.log(`${datasearch}`);
-                    
-                    // if (datasearch){
-                    //     // arrdatasearch untuk dapetin etag, id dll dari hasil search
-                    //     // arrdataupdate utk nyimpen data yang didapet dari spreadsheet
-                    //     arrdatasearch.push(datasearch);
-                    //     arrdataupdate.push(e);
-                    // } else {
-                    //     dataBuat.contacts.push(parseMultiKontak(e[0],e[1],e[2]));
-                    // }
                 });
                 console.log('[user.js] - Done search /multiple');
                 console.log('[user.js] - Updating data /multiple');
-                //console.log(arrdataupdate);
 
                 arrdatasearch.map((e, i) => { 
                     const obj = {
@@ -291,11 +274,6 @@ router.post('/multiple', async function(req, res){
                             Object.assign(dataUpdate.contacts, obj);
                         }
                 });
-
-                // console.log(`Data yang akan diupdate :`);
-                //console.log(dataUpdate.contacts);                
-                // console.log(`Data yang akan dibuat :`);
-                // console.log(dataBuat);
                 
                 try {
                     if (dataBuat.contacts.length > 0){
@@ -309,7 +287,7 @@ router.post('/multiple', async function(req, res){
                 } catch(err) {
                     console.log('Error',err);
                 }
-                console.log(`[users.js] - Sukses menambahkan ${datavalues.length} kontak`)
+                console.log(`[users.js] - Sukses membaca ${datavalues.length} kontak dari spreadsheet`);
                 console.log(`[user.js] - Proses createAndUpdateBatch() selesai`);
                 return res.render('success-modal', { 
                     title: 'Sukses Menambahkan Kontak', 
@@ -330,96 +308,5 @@ router.post('/multiple', async function(req, res){
     }
 });
 
-
-function renderListcontact(arrKontak, listKontak) {
-          
-    if(arrKontak) {
-        arrKontak.forEach(function(kontak, i) {
-            if (!arrKontak[i].emailAddresses){
-                if(!arrKontak[i].phoneNumbers){
-                    listKontak.push({
-                        "kontaknama": kontak.names[0].displayName,
-                        "kontakemail": "Tidak ada email",
-                        "nomorhp": "Tidak ada nomor handphone",
-                        "idKontak": kontak.resourceName
-                    });
-                } 
-                else {
-                    listKontak.push({
-                        "kontaknama": kontak.names[0].displayName,
-                        "kontakemail": "Tidak ada email",
-                        "nomorhp": kontak.phoneNumbers[0].value,    
-                        "idKontak": kontak.resourceName
-                });
-                }
-            } 
-            else if ((!arrKontak[i].phoneNumbers)) {
-                listKontak.push({
-                    "kontaknama": kontak.names[0].displayName,
-                    "kontakemail": kontak.emailAddresses[0].value,
-                    "nomorhp": "Tidak ada nomor handphone",
-                    "idKontak": kontak.resourceName
-                });
-            }
-            else {
-                listKontak.push({
-                    "kontaknama": kontak.names[0].displayName,
-                    "kontakemail": kontak.emailAddresses[0].value,
-                    "nomorhp": kontak.phoneNumbers[0].value,
-                    "idKontak": kontak.resourceName
-                });
-            }
-        });
-    } else {
-        console.log('Tidak ada data kontak')
-    }
-
-    return listKontak
-}
-
-function parseKontak(nama, nohp, email, etag){
-    body={
-        "etag": etag,
-        "names": [
-            {
-                "givenName": nama
-            }
-        ],
-        "phoneNumbers": [
-            {
-                'value': nohp
-            }
-        ],
-        "emailAddresses": [
-            {
-                'value': email
-            }
-        ]
-    }
-    return body
-}
-
-function parseMultiKontak(nama, email, nohp){
-    body={
-        "contactPerson": {
-            "names": [
-                {
-                    "givenName": nama
-                }
-            ],
-            "phoneNumbers": [
-                {
-                    'value': nohp
-                }
-            ],
-            "emailAddresses": [
-                {
-                    'value': email
-                }
-            ]
-        }
-    }
-    return body
-}
 
 module.exports = router;
