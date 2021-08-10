@@ -3,11 +3,6 @@ const {google} = require('googleapis');
 const expressLayout = require('express-ejs-layouts');
 const session = require('express-session');
 
-const indexRouter = require('./routes/index');
-const oauthRouter = require('./routes/auth');
-const usersRouter = require('./routes/users');
-const logoutRouter = require('./routes/logout');
-
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
@@ -33,12 +28,6 @@ app.use(session({
   resave: true,
   saveUninitialized: true
 }));
-
-// router level middleware?
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/auth', oauthRouter);
-app.use('/logout', logoutRouter);
 
 
 const oAuth2Client = new google.auth.OAuth2(
@@ -85,6 +74,15 @@ app.listen(port, () => {
   console.log(`[app.js] - Listening on: ${port}`);
 });
 
-module.exports = app;
+module.exports = {app, oAuth2Client};
 
-exports.getoAuth2Client = function() { return oAuth2Client; };
+const indexRouter = require('./routes/index');
+const oauthRouter = require('./routes/auth');
+const usersRouter = require('./routes/users');
+const logoutRouter = require('./routes/logout');
+
+// router level middleware?
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/auth', oauthRouter);
+app.use('/logout', logoutRouter);

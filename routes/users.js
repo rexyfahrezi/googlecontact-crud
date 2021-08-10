@@ -1,100 +1,9 @@
 const express = require('express');
-const { google } = require('googleapis');
 const router = express.Router();
-
-
-let oAuth2Client = router.get('/', function(req, res, next) {
-                        oAuth2Client = req.app.get('oAuth2Client');
-                        next();
-                        return oAuth2Client;
-                    })
-
-
-const service = google.people({version: 'v1', oAuth2Client});
-const sheets = google.sheets({version: 'v4', oAuth2Client});
-
-const getFromSheet = async function (sheetid,sheetname) {
-    return await sheets.spreadsheets.values.get({
-        spreadsheetId: sheetid,
-        range: `${sheetname}!A1:C200`,
-        auth: oAuth2Client,
-    })
-}
-
-const getDataMe = async function () {
-    return await service.people.get({
-        resourceName: 'people/me',
-        personFields: 'emailAddresses,names',
-        auth: oAuth2Client,
-    })
-}
-
-const apiBuatKontak = async function (body) {
-    return await service.people.createContact({
-        personFields: 'names,emailAddresses,phoneNumbers',
-        requestBody : JSON.stringify(body),
-        auth: oAuth2Client,
-    })
-}
-
-const apiTampilKontak = async function () {
-    return await service.people.connections.list({
-        resourceName: 'people/me',
-        pageSize: 20,
-        personFields: 'names,emailAddresses,phoneNumbers',
-        auth: oAuth2Client,
-        sortOrder: 'FIRST_NAME_ASCENDING'
-    });
-};
-
-const apiGetDetailKontak = async function (id) {
-    return await service.people.get({
-        resourceName: id,
-        personFields: 'names,emailAddresses,phoneNumbers',
-        auth: oAuth2Client,
-    })
-}
-
-const apiEditKontak = async function (id, data) {
-    return await service.people.updateContact({
-        resourceName: id,
-        personFields: 'names,emailAddresses,phoneNumbers',
-        updatePersonFields : 'names,emailAddresses,phoneNumbers',
-        requestBody: data,
-        auth: oAuth2Client
-    })
-}
-
-const apiDeleteKontak = async function (id) {  
-    return await service.people.deleteContact({
-        resourceName: id,
-        auth: oAuth2Client,
-    });
-};
-
-const apiSearchKontak = async function (search) {
-    return await service.people.searchContacts({
-        pageSize: 30,
-        query: search,
-        readMask: 'names,emailAddresses,phoneNumbers',
-        auth: oAuth2Client,
-    });
-}
-
-const apiAddMultipleKontak = async function (body) {
-    return await service.people.batchCreateContacts({
-        readMask: 'names,emailAddresses,phoneNumbers',
-        requestBody : JSON.stringify(body),
-        auth: oAuth2Client,
-    });
-}
-
-const apiUpdateMultipleKontak = async function (body) {
-    return await service.people.batchUpdateContacts({
-        requestBody : JSON.stringify(body),
-        auth: oAuth2Client,
-    });
-}
+const {
+    getFromSheet, getDataMe, apiBuatKontak, apiTampilKontak, apiGetDetailKontak, apiEditKontak,
+    apiDeleteKontak, apiSearchKontak, apiAddMultipleKontak, apiUpdateMultipleKontak
+} = require('../models/apicaller');
 
 router.get('/', function(req, res) {
 
@@ -404,7 +313,7 @@ router.post('/multiple', async function(req, res){
                 console.log(`[user.js] - Proses createAndUpdateBatch() selesai`);
                 return res.render('success-modal', { 
                     title: 'Sukses Menambahkan Kontak', 
-                    message: `${datavalues.length} kontak berhasil ditambahkan`,
+                    message: `${dataBuat.contacts.length} kontak baru berhasil ditambahkan & ${Object.keys(dataUpdate.contacts).length} kontak berhasil di update`,
                     layout: 'layouts/main-layout',
                     loginstatus: loggedin,
                    });                

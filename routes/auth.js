@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
-
+const {app, oAuth2Client} = require('../app');
 
 const getAccessToken = async function (req, res, next){
   const authcode = req.query.code;
-  const oAuth2Client = req.app.get('oAuth2Client');
 
   console.log('[auth.js] - Mendapatkan authCode:', authcode);
   console.log('[auth.js] - Mendapatkan oauth2Client data');
