@@ -293,7 +293,7 @@ router.post('/multiple', async function(req, res){
         const datavalues = datasheet.data.values;
         // warmup cache search
         await apiSearchKontak();
-
+        
         if (datavalues) {
             let dataBuat = {"contacts": []}
             let arrdataupdate = [];
@@ -400,7 +400,14 @@ router.post('/multiple', async function(req, res){
                 } catch(err) {
                     console.log('Error',err);
                 }
-
+                console.log(`[users.js] - Sukses menambahkan ${datavalues.length} kontak`)
+                console.log(`[user.js] - Proses createAndUpdateBatch() selesai`);
+                return res.render('success-modal', { 
+                    title: 'Sukses Menambahkan Kontak', 
+                    message: `${datavalues.length} kontak berhasil ditambahkan`,
+                    layout: 'layouts/main-layout',
+                    loginstatus: loggedin,
+                   });                
               };
             
             createAndUpdateBatch();
@@ -408,14 +415,6 @@ router.post('/multiple', async function(req, res){
         } else {
             console.log("[users.js] - fail getting datavalues");
         }
-
-        console.log(`[users.js] - Sukses menambahkan ${datavalues.length} kontak`)
-        res.render('success-modal', { 
-            title: 'Sukses Menambahkan Kontak', 
-            message: `${datavalues.length} kontak berhasil ditambahkan`,
-            layout: 'layouts/main-layout',
-            loginstatus: loggedin,
-           });
 
     } catch(err) {
         console.log("error",err);
