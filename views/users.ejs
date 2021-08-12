@@ -1,11 +1,9 @@
 <div class="container mt-3">
   <div class="row">
-    <h3>Halo <%= namaLengkapUser %></h3>
-    <!-- <p>Nama Anda : <%= namaLengkapUser %> </p>
-    <p>Email Anda : <%= emailUser %> </p> -->
     <div class="col-md-6">
-      <a href="/users/add" class="btn btn-primary mt-3 mb-3">+ Tambah Kontak</a>
-      <a href="/users/multiple" class="btn btn-primary mt-3 mb-3">+ Create dan Update dari spreadsheet</a>
+      <h3 class="mt-3">Halo <%= namaLengkapUser %></h3>
+      <!-- <p>Nama Anda : <%= namaLengkapUser %> </p>
+      <p>Email Anda : <%= emailUser %> </p> -->
     </div>
     <div class="col-md-6">
       <form id="tambah-kontak" method="GET" action="/users">
@@ -15,6 +13,14 @@
         </div>
       </form>
     </div>
+  </div>
+  <div class="row">
+      <div class="col-md-12">
+        <a href="/users/add" class="btn btn-primary mt-3 mb-3">+ Tambah Kontak</a>
+        <a href="/users/multiple" class="btn btn-primary mt-3 mb-3">+ Create dan Update dari spreadsheet</a>
+        <a href="#" class="btn btn-primary mt-3 mb-3">+ Create kontak dari spreadsheet</a>
+        <a href="#" class="btn btn-primary mt-3 mb-3">+ Update kontak dari spreadsheet</a>
+      </div>
   </div>
   <div class="row">
     <div class="col-md-12">
