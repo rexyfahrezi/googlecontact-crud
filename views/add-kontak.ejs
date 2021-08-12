@@ -15,11 +15,20 @@
                       <label for="nohp" class="form-label">No HP</label>
                       <input type="text" class="form-control" id="nohp" name="nohp" placeholder="08XXXXXXXX" required>
                     </div>
-                    <button type="submit" class="btn btn-primary" data-bs-toggle="modal">Tambah Kontak</button>
+                    <button type="submit" class="btn btn-primary" data-bs-toggle="modal" id="btnSubmit">Tambah Kontak</button>
                   </form>
           </div>
         </div>
     </div>
       
+<script>
+  $(document).ready(function () {
+      $("#tambah-kontak").submit(function (e) {
+          //disable the submit button
+          $("#btnSubmit").attr("disabled", true);
+          return true;
+      });
+  });
+</script>
 
 
