@@ -86,6 +86,9 @@ router.get('/add', async function(req, res) {
         res.redirect('/');
     }
 
+    //warmup cache search
+    await apiSearchKontak();
+
     res.render('add-kontak', { 
         title: 'Tambah Kontak', 
         layout: 'layouts/main-layout',
@@ -100,16 +103,32 @@ router.post('/add', async function(req, res) {
         res.redirect('/');
     }
 
-    const dataBuat = parseKontak(req.body.nama, req.body.nohp, req.body.email);
-    apiBuatKontak(dataBuat);
+    const search = await apiSearchKontak(req.body.nohp);
+    const search2 = await apiSearchKontak(req.body.email);
+    const datasearch = search.data.results;
+    const datasearch2 = search2.data.results;
+    console.log('[user.js post:/add] - Searching email & phone');
     
-    console.log(`[users.js] - Sukses membuat kontak baru`)
-    res.render('success-modal', { 
-        title: 'Sukses Menyimpan Kontak', 
-        message: 'Kontak berhasil disimpan',
-        layout: 'layouts/main-layout',
-        loginstatus: loggedin,
-       });
+    if(datasearch != undefined || datasearch2 != undefined){
+        console.log('[user.js post:/add] - Found data by email & phone');
+        res.render('fail-modal', { 
+            title: 'Gagal Membuat Kontak', 
+            message: 'Email / No HP sudah ada di kontak',
+            layout: 'layouts/main-layout',
+            loginstatus: loggedin,
+           });       
+    } else {
+        const dataBuat = parseKontak(req.body.nama, req.body.nohp, req.body.email);
+        apiBuatKontak(dataBuat);
+
+        console.log(`[users.js post:/add] - Sukses membuat kontak baru`)
+        res.render('success-modal', { 
+            title: 'Sukses Menyimpan Kontak', 
+            message: 'Kontak berhasil disimpan',
+            layout: 'layouts/main-layout',
+            loginstatus: loggedin,
+        });
+    }
 });
 
 router.get('/delete/people/:id', async function(req, res) {
