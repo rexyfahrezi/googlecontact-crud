@@ -210,7 +210,7 @@ router.get('/multiple', async function (req, res){
         layout: 'layouts/main-layout',
         loginstatus: loggedin
        });
-})
+});
 
 router.post('/multiple', async function(req, res){
     let loggedin = true
@@ -323,9 +323,62 @@ router.post('/multiple', async function(req, res){
         }
 
     } catch(err) {
-        console.log("error",err);
+        console.log("error POST/multiple",err);
     }
 });
 
+router.get('/multiplecreate', async function(req, res) {
+    let loggedin = true
+    if (!req.session.auth){
+        loggedin = false
+        res.redirect('/');
+    }
+
+    res.render('create-multi-kontak', { 
+        title: 'Create Multi Kontak', 
+        layout: 'layouts/main-layout',
+        loginstatus: loggedin
+       });
+});
+
+router.post('/multiplecreate', async function(req, res) {
+    let loggedin = true
+    if (!req.session.auth){
+        loggedin = false
+        res.redirect('/');
+    }
+
+    try {
+        const datasheet = await getFromSheet(req.body.idsheet, req.body.namasheet);
+        const datavalues = datasheet.data.values;
+
+        if (datavalues) {
+            let dataBuat = {"contacts": []}
+
+            datavalues.forEach(e => {
+                dataBuat.contacts.push(parseMultiKontak(e[0], e[1], e[2]));
+            });
+
+            console.log(`[user.js] - Membuat ${dataBuat.contacts.length} kontak baru dari sheet`);
+            await apiAddMultipleKontak(dataBuat);
+            
+            res.render('success-modal', { 
+                title: 'Sukses Menambahkan Kontak', 
+                message: `${dataBuat.contacts.length} kontak baru berhasil ditambahkan`,
+                layout: 'layouts/main-layout',
+                loginstatus: loggedin,
+           });
+        }
+
+    } catch (err) {
+        console.log("Error POST/MultipleCreate", err);
+        res.render('fail-modal', { 
+            title: 'Gagal Menambahkan Kontak', 
+            message: `Gagal menambahkan kontak`,
+            layout: 'layouts/main-layout',
+            loginstatus: loggedin,
+       });
+    }
+});
 
 module.exports = router;

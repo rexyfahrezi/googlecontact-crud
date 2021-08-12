@@ -1,0 +1,27 @@
+<div class="container mt-3">
+  <div class="row">
+    <div class="col-md-8">
+        <h2 class="mb-3">Create Multi Kontak</h2>
+        <form id="tambah-kontak" method="post" action="/users/multiplecreate">
+              <div class="mb-3">
+                <label for="idsheet" class="form-label">ID Sheet</label>
+                <input type="text" class="form-control" id="idsheet" name="idsheet" placeholder="/spreadsheets/d/[SHEET ID]" required>
+              </div>
+              <div class="mb-3">
+                <label for="namasheet" class="form-label">Nama Sheet</label>
+                <input type="namasheet" class="form-control" id="namasheet" name="namasheet" placeholder="Sheet1" required>
+              </div>
+              <button type="submit" class="btn btn-primary" data-bs-toggle="modal" id="btnSubmit">Tambah Kontak</button>
+            </form>
+    </div>
+  </div>
+</div>
+<script>
+  $(document).ready(function () {
+      $("#tambah-kontak").submit(function (e) {
+          //disable the submit button
+          $("#btnSubmit").attr("disabled", true);
+          return true;
+      });
+  });
+</script>
