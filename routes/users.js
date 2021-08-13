@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
-    getFromSheet, getDataMe, apiBuatKontak, apiTampilKontak, apiGetDetailKontak, apiEditKontak,
+    getFromSheet, getDatabyId, apiBuatKontak, apiTampilKontak, apiGetDetailKontak, apiEditKontak,
     apiDeleteKontak, apiSearchKontak, apiAddMultipleKontak, apiUpdateMultipleKontak
 } = require('../models/apicaller');
 
@@ -28,7 +28,7 @@ router.get('/', function(req, res) {
 
             //akses google API
             const dataKontak = await apiTampilKontak();
-            const dataUser = await getDataMe();
+            const dataUser = await getDatabyId('me');
 
             //ini data user
             const givenName = dataUser.data.names[0].givenName;
@@ -378,6 +378,77 @@ router.post('/multiplecreate', async function(req, res) {
             layout: 'layouts/main-layout',
             loginstatus: loggedin,
        });
+    }
+});
+
+router.get('/multipleupdate', async function(req, res) {
+    let loggedin = true
+    if (!req.session.auth){
+        loggedin = false
+        res.redirect('/');
+    }
+
+    res.render('update-multi-kontak', { 
+        title: 'Update Multi Kontak', 
+        layout: 'layouts/main-layout',
+        loginstatus: loggedin
+       });
+});
+
+router.post('/multipleupdate', async function(req,res) {
+    let loggedin = true
+    if (!req.session.auth){
+        loggedin = false
+        res.redirect('/');
+    }
+
+    try {
+        const datasheet = await getFromSheet(req.body.idsheet, req.body.namasheet);
+        const datavalues = datasheet.data.values;
+        let dataUpdate =   {
+            "contacts": {},
+            "updateMask": 'names,emailAddresses,phoneNumbers',
+            "readMask": 'names,emailAddresses,phoneNumbers',
+        };
+
+        let databyId = []
+
+        for (i = 0; i < datavalues.length; i++){
+            databyId.push(await getDatabyId(datavalues[i][0]));
+        }
+        // console.log(databyId);
+
+        if (datavalues) {
+            datavalues.map((e, i) => { 
+                const obj = {
+                  [`people/${e[0]}`]: {
+                    "etag": databyId[i].data.etag,
+                    "names": [{"givenName": e[1]}],
+                    "emailAddresses": [{"value": e[2]}],
+                    "phoneNumbers": [{"value": e[3]}]
+                  }
+                };
+                Object.assign(dataUpdate.contacts, obj);
+            });
+            // console.log(dataUpdate);
+            console.log(`[user.js POST/multipleupdate] - Ada ${Object.keys(dataUpdate.contacts).length} data update dari sheet`);
+            await apiUpdateMultipleKontak(dataUpdate);
+            
+            res.render('success-modal', { 
+                title: 'Sukses Menambahkan Kontak', 
+                message: `${Object.keys(dataUpdate.contacts).length} kontak berhasil di update`,
+                layout: 'layouts/main-layout',
+                loginstatus: loggedin,
+               });
+        }
+    } catch (err) {
+        console.log("Error POST/MultipleUpdate", err);
+        res.render('fail-modal', { 
+            title: 'Gagal Mengupdate Kontak', 
+            message: `Gagal Mengupdate kontak`,
+            layout: 'layouts/main-layout',
+            loginstatus: loggedin,
+       })
     }
 });
 

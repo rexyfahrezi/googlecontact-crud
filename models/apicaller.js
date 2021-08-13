@@ -7,14 +7,14 @@ const sheets = google.sheets({version: 'v4', oAuth2Client});
 exports.getFromSheet = async function (sheetid,sheetname) {
     return await sheets.spreadsheets.values.get({
         spreadsheetId: sheetid,
-        range: `${sheetname}!A1:C200`,
+        range: `${sheetname}!A1:D200`,
         auth: oAuth2Client,
     })
 }
 
-exports.getDataMe = async function () {
+exports.getDatabyId = async function (id) {
     return await service.people.get({
-        resourceName: 'people/me',
+        resourceName: `people/${id}`,
         personFields: 'emailAddresses,names',
         auth: oAuth2Client,
     })
