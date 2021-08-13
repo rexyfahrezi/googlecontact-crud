@@ -71,6 +71,7 @@ router.get('/', function(req, res) {
                 title: 'Gagal mencari', 
                 message: 'Kontak tidak ditemukan, pastikan query sesuai dengan karakter awal yang dicari.\nContoh : "Budi" "Bu" "Bud" ',
                 layout: 'layouts/main-layout',
+                directurl: '/users/',
                 loginstatus: loggedin,
                });
         }
@@ -115,6 +116,7 @@ router.post('/add', async function(req, res) {
             title: 'Gagal Membuat Kontak', 
             message: 'Email / No HP sudah ada di kontak',
             layout: 'layouts/main-layout',
+            directurl: '/users/add',
             loginstatus: loggedin,
            });       
     } else {
@@ -376,6 +378,7 @@ router.post('/multiplecreate', async function(req, res) {
             title: 'Gagal Menambahkan Kontak', 
             message: `Gagal menambahkan kontak`,
             layout: 'layouts/main-layout',
+            directurl: '/users/multiplecreate',
             loginstatus: loggedin,
        });
     }
@@ -447,6 +450,7 @@ router.post('/multipleupdate', async function(req,res) {
             title: 'Gagal Mengupdate Kontak', 
             message: `Gagal Mengupdate kontak`,
             layout: 'layouts/main-layout',
+            directurl: '/users/multipleupdate',
             loginstatus: loggedin,
        })
     }
