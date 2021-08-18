@@ -80,9 +80,11 @@ const indexRouter = require('./routes/index');
 const oauthRouter = require('./routes/auth');
 const usersRouter = require('./routes/users');
 const logoutRouter = require('./routes/logout');
+const serviceAcc = require('./routes/service');
 
 // router level middleware?
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', oauthRouter);
 app.use('/logout', logoutRouter);
+app.use('/service', serviceAcc);
